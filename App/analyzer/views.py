@@ -17,7 +17,7 @@ import shutil
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
-from github_getter import GitHubAnalyzer  # Asegúrate de tener la ruta correcta
+from Github_getter import GitHubAnalyzer  # Asegúrate de tener la ruta correcta
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch, cm

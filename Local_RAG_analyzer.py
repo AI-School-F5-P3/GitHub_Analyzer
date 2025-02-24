@@ -1,12 +1,11 @@
 from datetime import datetime
 import os
 from typing import List, Dict, Any
-from langchain_groq import ChatGroq
+from langchain_community.llms import Ollama
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.schema import OutputParserException
 from langchain.schema.runnable import RunnableConfig
 import requests.exceptions
-from dotenv import load_dotenv
 import logging
 from Github_getter import GitHubAnalyzer
 from Briefing_analyzer import ComplianceAnalyzer
@@ -18,39 +17,35 @@ from typing import Any
 root_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(root_dir)
 
-class GroqAPIError(Exception):
-    """Custom exception for Groq API errors"""
+class OllamaAPIError(Exception):
+    """Custom exception for Ollama API errors"""
     pass
 
 class GitHubRAGAnalyzer:
     """
     Clase principal para analizar repositorios de GitHub usando RAG (Retrieval Augmented Generation)
-    y evaluarlos contra requisitos específicos de proyectos de IA
+    y evaluarlos contra requisitos específicos de proyectos de IA - Versión Local con Ollama
     """
     def __init__(
         self,
-        model_name: str = "mixtral-8x7b-32768",
-        api_key: str = None
+        model_name: str = "mixtral",
+        base_url: str = "http://localhost:11434"
     ):
         """
-        Inicialización del analizador con integración de Groq
+        Inicialización del analizador con integración de Ollama local
         Args:
-            model_name: Nombre del modelo de Groq a utilizar
-            api_key: Clave API de Groq (opcional, puede estar en .env)
+            model_name: Nombre del modelo de Ollama a utilizar
+            base_url: URL base de Ollama (por defecto localhost:11434)
         """
-        load_dotenv()
         self.model_name = model_name
-        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        self.base_url = base_url
         
-        if not self.api_key:
-            raise ValueError("Groq API key required")
-            
         # Inicialización de componentes principales
         self.github_analyzer = GitHubAnalyzer()
         self.compliance_analyzer = ComplianceAnalyzer()
         
         self.setup_logging()
-        self.initialize_groq()
+        self.initialize_ollama()
         self.setup_prompts()
         self.project_type = None  # Se establecerá durante el análisis
     
@@ -62,17 +57,19 @@ class GitHubRAGAnalyzer:
         )
         self.logger = logging.getLogger(__name__)
 
-    def initialize_groq(self):
-        """Inicialización del modelo de lenguaje Groq"""
+    def initialize_ollama(self):
+        """Inicialización del modelo de lenguaje Ollama local"""
         try:
-            self.llm = ChatGroq(
-                api_key=self.api_key,
-                model_name=self.model_name
+            self.llm = Ollama(
+                model=self.model_name,
+                base_url=self.base_url
             )
         except Exception as e:
-            self.logger.error(f"Error initializing Groq model: {e}")
-            raise GroqAPIError("Failed to initialize Groq API")
-        
+            self.logger.error(f"Error initializing Ollama model: {e}")
+            raise OllamaAPIError("Failed to initialize Ollama")
+
+    # El resto del código permanece igual, solo cambiando las referencias 
+    # de Groq a Ollama donde sea necesario
     def _clean_json_string(self, text: str) -> str:
         """
         Limpia y valida una cadena JSON
@@ -123,7 +120,7 @@ class GitHubRAGAnalyzer:
         except json.JSONDecodeError as je:
             self.logger.error(f"JSON decode error: {je}")
             self.logger.debug(f"Raw response: {response_text}")
-            raise GroqAPIError(f"Error parsing LLM response: {je}")
+            raise OllamaAPIError(f"Error parsing LLM response: {je}")
         
     def _get_error_response(self, error_message: str) -> Dict[str, Any]:
         """
@@ -271,7 +268,7 @@ class GitHubRAGAnalyzer:
                     "tier_analysis": analysis,
                     "analysis_date": str(datetime.now())
                 }
-            except (requests.exceptions.RequestException, GroqAPIError) as api_error:
+            except (requests.exceptions.RequestException, OllamaAPIError) as api_error:
                 self.logger.error(f"Groq API error: {str(api_error)}")
                 return {
                     "error": "Lo sentimos, la API de Groq no está disponible en este momento. Por favor, inténtelo más tarde.",
@@ -368,7 +365,7 @@ class GitHubRAGAnalyzer:
     @retry(
         stop=stop_after_attempt(2),
         wait=wait_exponential(multiplier=1, min=4, max=10),
-        retry=lambda e: isinstance(e, (requests.exceptions.RequestException, GroqAPIError)),
+        retry=lambda e: isinstance(e, (requests.exceptions.RequestException, OllamaAPIError)),
         retry_error_callback=lambda _: {
             "error": "Lo sentimos, la API de Groq no está disponible en este momento.",
             "analysis_date": str(datetime.now())
