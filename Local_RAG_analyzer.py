@@ -28,7 +28,7 @@ class GitHubRAGAnalyzer:
     """
     def __init__(
         self,
-        model_name: str = "mixtral",
+        model_name: str = "deepseek-r1:1.5b",
         base_url: str = "http://localhost:11434"
     ):
         """
