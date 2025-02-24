@@ -10,7 +10,7 @@ import os
 import logging
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_dir)
-from github_getter import GitHubAnalyzer
+from Github_getter import GitHubAnalyzer
 
 logger = logging.getLogger('repo_analyzer.views')
 
