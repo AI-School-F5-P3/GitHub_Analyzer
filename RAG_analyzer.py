@@ -82,6 +82,9 @@ class GitHubRAGAnalyzer:
             str: JSON limpio y válido
         """
         try:
+            if not text:
+                raise ValueError("Empty response text")
+            
             # Encuentra el primer '{' y último '}'
             start = text.find('{')
             end = text.rfind('}') + 1
@@ -351,12 +354,8 @@ class GitHubRAGAnalyzer:
             # Limpieza y validación de la respuesta JSON
             try:
                 response_text = response.content.strip()
-                if not response_text.startswith('{'):
-                    response_text = response_text[response_text.find('{'):]
-                if not response_text.endswith('}'):
-                    response_text = response_text[:response_text.rfind('}')+1]
-                
-                return json.loads(response_text)
+                cleaned_json = self._clean_json_string(response_text)
+                return json.loads(cleaned_json)
             except json.JSONDecodeError as je:
                 self.logger.error(f"Error parsing JSON response: {je}")
                 return {}
@@ -478,12 +477,8 @@ class GitHubRAGAnalyzer:
             # Limpieza y validación de la respuesta JSON
             try:
                 response_text = response.content.strip()
-                if not response_text.startswith('{'):
-                    response_text = response_text[response_text.find('{'):]
-                if not response_text.endswith('}'):
-                    response_text = response_text[:response_text.rfind('}')+1]
-                
-                analysis_result = json.loads(response_text)
+                cleaned_json = self._clean_json_string(response_text)
+                analysis_result = json.loads(cleaned_json)
                 
                 # Validación de campos requeridos
                 required_fields = ['evaluacion_general', 'analisis_por_nivel', 'analisis_tecnico', 
