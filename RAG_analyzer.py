@@ -13,7 +13,7 @@ from langchain.schema import HumanMessage, SystemMessage
 import requests.exceptions
 from dotenv import load_dotenv
 from github_getter import GitHubAnalyzer
-from briefing_analyzer import ComplianceAnalyzer
+from Briefing_analyzer import ComplianceAnalyzer
 from RAG_process import RepoRAGProcessor
 
 class LLMClient:
