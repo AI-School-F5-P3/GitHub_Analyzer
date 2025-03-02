@@ -9,6 +9,7 @@ def compliance_analyzer():
 def test_extract_text_from_pdf(compliance_analyzer):
     briefing_path = "../../briefings/Briefing_proyecto_Data_Scientist.pdf"  # Briefing de prueba
     text = compliance_analyzer.extract_text_from_pdf(briefing_path)
+    print(f"Texto extraído: {text}")
     assert isinstance(text, str)
     assert len(text) > 0
 

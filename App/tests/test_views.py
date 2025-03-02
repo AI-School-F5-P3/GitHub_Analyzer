@@ -1,9 +1,12 @@
 # tests/test_views.py
+print("6. Importando módulos en test_views.py...")
 import pytest
 from django.urls import reverse
 from django.test import Client
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'repo_analyzer.settings')
+
+print("7. Módulos importados en test_views.py.")
 
 @pytest.fixture
 def client():
