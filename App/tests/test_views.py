@@ -12,7 +12,7 @@ print("7. Módulos importados en test_views.py.")
 def client():
     return Client()
 
-@pytest.mark.django_db # Indica que se necesita la base de datos de Django para este test
+@pytest.mark.django_db 
 def test_home_view(client):
     response = client.get(reverse('home'))
     assert response.status_code == 200

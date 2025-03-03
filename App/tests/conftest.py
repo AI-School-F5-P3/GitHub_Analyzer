@@ -5,9 +5,6 @@ import pytest
 from pathlib import Path
 from django.conf import settings
 
-# No es necesario configurar PYTHONPATH aquí si ya lo hiciste en el conftest.py raíz
-# pero si lo mantienes, asegúrate de que la ruta sea correcta
-
 print("Configurando bases de datos para pruebas...")
 
 @pytest.fixture(scope='session')
